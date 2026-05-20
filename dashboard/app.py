@@ -14,7 +14,7 @@ from utils.config import DEFAULT_TICKERS, LOOKBACK_DAYS, NEWS_API_KEY
 # Institutional Configuration
 st.set_page_config(
     page_title="SENTIRA PRO | Institutional Sentiment Terminal",
-    page_icon="💠",
+    page_icon="dashboard/assets/favicon.svg",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
