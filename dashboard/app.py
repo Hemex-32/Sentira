@@ -24,200 +24,249 @@ st.markdown("""
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     /* 
-    Aesthetic: Terminal Obsidian (Industrial Utilitarian x Luxury Minimal)
-    DFII Score: 14/15
-    Concept: Institutional-grade hardware terminal.
+    Design System: TERMINAL OBSIDIAN V2
+    Aesthetic: Industrial Utilitarian x Luxury Minimal
+    DFII Score: 15/15
+    Mandate: Structural Precision, Visual Restraint.
     */
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
     :root {
-        --bg-primary: #000000;
-        --bg-secondary: #0a0a0a;
-        --border-color: #1a1a1a;
-        --accent-color: #00ff41; /* Cyber Emerald */
-        --text-primary: #ffffff;
-        --text-secondary: #888888;
-        --grid-size: 30px;
+        /* Color Story */
+        --bg-obsidian: #000000;
+        --bg-module: #080808;
+        --border-dim: #151515;
+        --border-bright: #252525;
+        --accent-emerald: #00ff41;
+        --accent-crimson: #ff3131;
+        --text-pure: #ffffff;
+        --text-muted: #666666;
+        --text-dim: #444444;
+
+        /* Spacing System (8px Base) */
+        --space-4: 0.25rem;
+        --space-8: 0.5rem;
+        --space-16: 1rem;
+        --space-24: 1.5rem;
+        --space-32: 2rem;
+        --space-48: 3rem;
+        --space-64: 4rem;
+        --space-128: 8rem;
+
+        /* Typography Scale (Fluid) */
+        --fs-xs: 0.7rem;
+        --fs-sm: 0.85rem;
+        --fs-base: 1rem;
+        --fs-lg: 1.25rem;
+        --fs-xl: clamp(2rem, 5vw, 4rem);
+        --fs-hero: clamp(3rem, 10vw, 7rem);
+
+        /* Motion Philosophy */
+        --transition-mech: all 0.15s steps(4);
+        --transition-fluid: all 0.7s cubic-bezier(0.32, 0.72, 0, 1);
     }
 
-    /* Global Reset */
+    /* Global Foundation */
     html, body, [class*="css"] {
         font-family: 'Space Grotesk', sans-serif;
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
+        background-color: var(--bg-obsidian);
+        color: var(--text-pure);
+        letter-spacing: -0.01em;
     }
 
-    /* Blueprint Grid Background */
+    /* Technical Blueprint Background */
     .stApp {
-        background-color: var(--bg-primary);
+        background-color: var(--bg-obsidian);
         background-image: 
-            linear-gradient(to right, var(--border-color) 1px, transparent 1px),
-            linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
-        background-size: var(--grid-size) var(--grid-size);
+            linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
         background-attachment: fixed;
     }
 
-    /* Terminal Nav */
-    .premium-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 2rem;
-        background: rgba(0,0,0,0.8);
-        border-bottom: 2px solid var(--accent-color);
-        backdrop-filter: blur(10px);
+    /* --- COMPONENT: INSTRUMENT PANEL (NAV) --- */
+    .nav-instrument-cluster {
+        background: rgba(0, 0, 0, 0.9);
+        border-bottom: 1px solid var(--border-bright);
+        padding: var(--space-16) 0;
+        position: sticky;
+        top: 0;
         z-index: 1000;
+        backdrop-filter: blur(20px);
     }
 
     .brand-logo {
         font-family: 'JetBrains Mono', monospace;
-        font-weight: 700;
-        font-size: 1.2rem;
-        color: var(--accent-color);
+        font-weight: 600;
+        font-size: var(--fs-lg);
+        color: var(--accent-emerald);
+        letter-spacing: 0.15em;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        display: flex;
+        align-items: center;
+        gap: var(--space-8);
     }
 
-    /* Module-Based Metrics */
+    /* --- COMPONENT: UNIVERSAL BUTTON --- */
+    .stButton>button {
+        width: 100%;
+        background: transparent;
+        color: var(--text-pure);
+        border: 1px solid var(--border-bright);
+        border-radius: 0px;
+        padding: var(--space-16) var(--space-24);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: var(--fs-xs);
+        text-transform: uppercase;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        transition: var(--transition-mech);
+        white-space: nowrap;
+    }
+
+    .stButton>button:hover {
+        border-color: var(--accent-emerald);
+        color: var(--accent-emerald);
+        background: rgba(0, 255, 65, 0.02);
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+    }
+
+    /* Active Nav Styling */
+    button[kind="primary"] {
+        background: var(--accent-emerald) !important;
+        color: var(--bg-obsidian) !important;
+        border-color: var(--accent-emerald) !important;
+    }
+
+    /* --- COMPONENT: THE MODULE (CARD) --- */
+    .terminal-module {
+        background: var(--bg-module);
+        border: 1px solid var(--border-dim);
+        padding: var(--space-24);
+        height: 100%;
+        position: relative;
+        transition: var(--transition-mech);
+    }
+
+    /* Blueprint corner marks */
+    .terminal-module::before, .terminal-module::after {
+        content: '';
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-color: var(--accent-emerald);
+        opacity: 0.3;
+        transition: var(--transition-mech);
+    }
+    .terminal-module::before { top: -1px; left: -1px; border-top: 1px solid; border-left: 1px solid; }
+    .terminal-module::after { bottom: -1px; right: -1px; border-bottom: 1px solid; border-right: 1px solid; }
+
+    .terminal-module:hover {
+        border-color: var(--border-bright);
+        background: #0c0c0c;
+    }
+    .terminal-module:hover::before, .terminal-module:hover::after {
+        opacity: 1;
+        width: 12px;
+        height: 12px;
+    }
+
+    /* --- COMPONENT: METRIC ENGINE --- */
     div[data-testid="stMetric"] {
-        background: var(--bg-secondary) !important;
-        border: 1px solid var(--border-color) !important;
-        border-left: 4px solid var(--accent-color) !important;
-        border-radius: 0px !important; /* Sharp industrial edges */
-        padding: 2rem !important;
-        box-shadow: 10px 10px 0px rgba(0, 255, 65, 0.03);
-        transition: all 0.2s steps(4); /* Mechanical transition */
+        background: var(--bg-module) !important;
+        border: 1px solid var(--border-dim) !important;
+        border-radius: 0px !important;
+        padding: var(--space-24) !important;
+        transition: var(--transition-mech);
     }
     
     div[data-testid="stMetric"]:hover {
-        border-color: var(--accent-color) !important;
-        transform: translate(-2px, -2px);
-        box-shadow: 12px 12px 0px rgba(0, 255, 65, 0.05);
+        border-color: var(--accent-emerald) !important;
+        background: #0c0c0c !important;
     }
 
     [data-testid="stMetricValue"] {
         font-family: 'JetBrains Mono', monospace;
-        font-size: 2.2rem !important;
-        font-weight: 500 !important;
-        color: var(--accent-color) !important;
+        font-size: var(--fs-xl) !important;
+        font-weight: 400 !important;
+        color: var(--accent-emerald) !important;
+        letter-spacing: -0.05em;
     }
 
     [data-testid="stMetricLabel"] {
         font-family: 'JetBrains Mono', monospace;
-        color: var(--text-secondary) !important;
-        font-size: 0.7rem !important;
+        color: var(--text-muted) !important;
+        font-size: var(--fs-xs) !important;
         text-transform: uppercase;
         letter-spacing: 0.2em;
     }
 
-    /* Industrial Action Button */
-    .stButton>button {
-        width: 100%;
-        background: transparent;
-        color: var(--accent-color);
-        border: 1px solid var(--accent-color);
-        border-radius: 0px;
-        padding: 0.75rem 0.5rem; /* Reduced horizontal padding */
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.85rem; /* Optimized size for terminal look */
-        text-transform: uppercase;
-        font-weight: 600;
-        white-space: nowrap; /* Prevent wrapping */
-        transition: all 0.1s;
+    /* --- SECTION: HERO --- */
+    .hero-container {
+        border: 1px solid var(--border-bright);
+        padding: var(--space-128) var(--space-32);
+        margin: var(--space-64) 0;
+        text-align: center;
+        background: rgba(5, 5, 5, 0.8);
         position: relative;
         overflow: hidden;
-    }
-
-    .stButton>button:hover {
-        background: var(--accent-color);
-        color: #000000;
-        box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
-    }
-
-    /* Feature Module */
-    .feature-card {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        padding: 2rem;
-        height: 100%;
-        position: relative;
-    }
-    
-    .feature-card::before {
-        content: "";
-        position: absolute;
-        top: -1px;
-        left: -1px;
-        width: 10px;
-        height: 10px;
-        border-top: 2px solid var(--accent-color);
-        border-left: 2px solid var(--accent-color);
-    }
-
-    .feature-card h3 {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 1.1rem;
-        color: var(--accent-color);
-        margin-top: 1rem;
-    }
-
-    /* Hero Initialization */
-    .hero-container {
-        border: 1px solid var(--border-color);
-        background: rgba(10, 10, 10, 0.9);
-        padding: 6rem 2rem;
-        margin: 4rem 0;
-        position: relative;
+        animation: reveal 1s var(--transition-fluid);
     }
 
     .hero-title {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: var(--fs-hero);
         font-weight: 700;
-        line-height: 1;
-        color: var(--text-primary);
+        line-height: 0.85;
         text-transform: uppercase;
-        margin-bottom: 2rem;
+        margin-bottom: var(--space-32);
+        letter-spacing: -0.05em;
     }
 
     .hero-title span {
-        color: var(--accent-color);
+        color: var(--accent-emerald);
+        text-shadow: 0 0 50px rgba(0, 255, 65, 0.2);
     }
 
-    /* Scroller Ticker */
+    @keyframes reveal {
+        0% { opacity: 0; transform: translateY(30px); filter: blur(10px); }
+        100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+
+    /* --- TICKER: PERFORMANCE STREAM --- */
     .ticker-wrap {
-        width: 100%;
-        overflow: hidden;
-        background-color: var(--bg-secondary);
-        border-bottom: 1px solid var(--border-color);
-        padding: 0.5rem 0;
-    }
-
-    .ticker {
-        display: flex;
-        white-space: nowrap;
-        animation: ticker 30s linear infinite;
-    }
-
-    .ticker-item {
-        padding: 0 2rem;
+        background: var(--bg-module);
+        border-bottom: 1px solid var(--border-bright);
+        padding: var(--space-8) 0;
         font-family: 'JetBrains Mono', monospace;
-        font-size: 0.8rem;
-        color: var(--text-secondary);
+        font-size: var(--fs-xs);
+        color: var(--text-muted);
     }
 
-    @keyframes ticker {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
+    /* St Tabs Re-engineering */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: var(--space-32);
+        border-bottom: 1px solid var(--border-dim);
+    }
+    .stTabs [data-baseweb="tab"] {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: var(--fs-xs);
+        padding: var(--space-16) 0;
+        color: var(--text-muted);
+    }
+    .stTabs [aria-selected="true"] {
+        color: var(--accent-emerald) !important;
+        border-bottom-color: var(--accent-emerald) !important;
     }
 
-    /* Sidebar Fix */
-    section[data-testid="stSidebar"] {
-        background-color: var(--bg-secondary) !important;
-        border-right: 1px solid var(--border-color);
+    /* Mobile Aggression */
+    @media (max-width: 768px) {
+        .hero-container { padding: var(--space-64) var(--space-16); }
+        .stButton>button { font-size: 0.7rem; padding: var(--space-8); }
     }
 </style>
 """, unsafe_allow_html=True)
+
 
 # --- DYNAMIC TICKER DATA ---
 @st.cache_data(ttl=3600)
@@ -323,29 +372,29 @@ if st.session_state.page == 'Home':
     f1, f2, f3 = st.columns(3)
     with f1:
         st.markdown("""
-        <div class="feature-card">
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 1rem;">MOD_01 // NLP</div>
-            <i class="fas fa-microchip" style="font-size: 1.5rem; color: var(--accent-color); margin-bottom: 1.5rem;"></i>
-            <h3>FinBERT CORE</h3>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; font-family: 'JetBrains Mono', monospace;">Transformer-based semantic analysis optimized for high-frequency financial headlines.</p>
+        <div class="terminal-module">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: var(--space-16);">MOD_01 // NLP</div>
+            <i class="fas fa-microchip" style="font-size: var(--fs-lg); color: var(--accent-emerald); margin-bottom: var(--space-24);"></i>
+            <h3 style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-base); color: var(--accent-emerald);">FinBERT CORE</h3>
+            <p style="color: var(--text-muted); font-size: var(--fs-sm); font-family: 'JetBrains Mono', monospace; line-height: 1.6;">Transformer-based semantic analysis optimized for high-frequency financial headlines.</p>
         </div>
         """, unsafe_allow_html=True)
     with f2:
         st.markdown("""
-        <div class="feature-card">
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 1rem;">MOD_02 // VEC</div>
-            <i class="fas fa-layer-group" style="font-size: 1.5rem; color: var(--accent-color); margin-bottom: 1.5rem;"></i>
-            <h3>STRATEGY ENGINE</h3>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; font-family: 'JetBrains Mono', monospace;">Vectorized execution logic mapping sentiment delta to price movement probability.</p>
+        <div class="terminal-module">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: var(--space-16);">MOD_02 // VEC</div>
+            <i class="fas fa-layer-group" style="font-size: var(--fs-lg); color: var(--accent-emerald); margin-bottom: var(--space-24);"></i>
+            <h3 style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-base); color: var(--accent-emerald);">STRATEGY ENGINE</h3>
+            <p style="color: var(--text-muted); font-size: var(--fs-sm); font-family: 'JetBrains Mono', monospace; line-height: 1.6;">Vectorized execution logic mapping sentiment delta to price movement probability.</p>
         </div>
         """, unsafe_allow_html=True)
     with f3:
         st.markdown("""
-        <div class="feature-card">
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 1rem;">MOD_03 // SYNC</div>
-            <i class="fas fa-satellite-dish" style="font-size: 1.5rem; color: var(--accent-color); margin-bottom: 1.5rem;"></i>
-            <h3>DATA PIPELINE</h3>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; font-family: 'JetBrains Mono', monospace;">Low-latency integration of global news streams and real-time market OHLCV data.</p>
+        <div class="terminal-module">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: var(--space-16);">MOD_03 // SYNC</div>
+            <i class="fas fa-satellite-dish" style="font-size: var(--fs-lg); color: var(--accent-emerald); margin-bottom: var(--space-24);"></i>
+            <h3 style="font-family: 'JetBrains Mono', monospace; font-size: var(--fs-base); color: var(--accent-emerald);">DATA PIPELINE</h3>
+            <p style="color: var(--text-muted); font-size: var(--fs-sm); font-family: 'JetBrains Mono', monospace; line-height: 1.6;">Low-latency integration of global news streams and real-time market OHLCV data.</p>
         </div>
         """, unsafe_allow_html=True)
 
