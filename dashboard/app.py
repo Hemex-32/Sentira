@@ -78,9 +78,9 @@ st.markdown("""
     .stApp {
         background-color: var(--bg-obsidian);
         background-image: 
-            linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
-        background-size: 40px 40px;
+            linear-gradient(to right, #1a1a1a 1px, transparent 1px),
+            linear-gradient(to bottom, #1a1a1a 1px, transparent 1px);
+        background-size: 30px 30px;
         background-attachment: fixed;
     }
 
@@ -235,12 +235,31 @@ st.markdown("""
 
     /* --- TICKER: PERFORMANCE STREAM --- */
     .ticker-wrap {
+        width: 100%;
+        overflow: hidden;
         background: var(--bg-module);
         border-bottom: 1px solid var(--border-bright);
         padding: var(--space-8) 0;
+    }
+
+    .ticker {
+        display: flex;
+        white-space: nowrap;
+        animation: ticker 40s linear infinite;
+    }
+
+    .ticker-item {
+        padding: 0 var(--space-48);
         font-family: 'JetBrains Mono', monospace;
         font-size: var(--fs-xs);
         color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    @keyframes ticker {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
     }
 
     /* St Tabs Re-engineering */
@@ -259,13 +278,52 @@ st.markdown("""
         border-bottom-color: var(--accent-emerald) !important;
     }
 
-    /* Mobile Aggression */
-    @media (max-width: 768px) {
-        .hero-container { padding: var(--space-64) var(--space-16); }
-        .stButton>button { font-size: 0.7rem; padding: var(--space-8); }
+    /* --- SECTION: CONTROL UNIT POP --- */
+    .control-unit-container {
+        animation: controlShutter 0.8s steps(12) forwards;
+        background: var(--bg-module);
+        border: 1px solid var(--border-bright);
+        padding: var(--space-24);
+        position: relative;
+        overflow: visible !important;
+        margin-top: var(--space-24);
     }
+
+    .control-unit-container::before {
+        content: "CONTROL // UNIT";
+        position: absolute;
+        top: -14px;
+        left: 20px;
+        background: #000000;
+        padding: 4px 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: var(--accent-emerald);
+        z-index: 100;
+        letter-spacing: 0.15em;
+        border: 1px solid var(--border-bright);
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+    }
+
+    @keyframes controlShutter {
+        0% { 
+            transform: translateX(-30px); 
+            opacity: 0; 
+            clip-path: inset(-20px 100% -20px -20px);
+        }
+        100% { 
+            transform: translateX(0); 
+            opacity: 1; 
+            clip-path: inset(-20px 0 -20px -20px);
+        }
+    }
+
+    /* sidebar removal */
+    [data-testid="stSidebar"] { display: none; }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # --- DYNAMIC TICKER DATA ---
@@ -404,84 +462,85 @@ elif st.session_state.page == 'Terminal':
         st.error("🔑 **AUTHENTICATION REQUIRED**: Please secure your NEWS_API_KEY in the environment.")
         st.stop()
 
-    with st.sidebar:
-        st.markdown("### <i class='fas fa-sliders'></i> CONTROL UNIT", unsafe_allow_html=True)
-        st.markdown("---")
+    col_ctrl, col_main = st.columns([1.2, 3.8])
+
+    with col_ctrl:
+        st.markdown('<div class="control-unit-container">', unsafe_allow_html=True)
         ticker = st.selectbox("ACTIVE ASSET", DEFAULT_TICKERS)
         horizon = st.slider("LOOKBACK HORIZON", 7, 30, 30)
-        st.markdown("---")
         exec_btn = st.button("RUN ENGINE")
-        st.markdown("---")
         st.caption("SENTIRA CORE v2.9-INSTITUTIONAL")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    if exec_btn:
-        with st.spinner("🧬 DECODING MARKET SENTIMENT VECTORS..."):
-            st.session_state.results = run_pipeline(ticker, days=horizon)
+    with col_main:
+        if exec_btn:
+            with st.spinner("🧬 DECODING MARKET SENTIMENT VECTORS..."):
+                st.session_state.results = run_pipeline(ticker, days=horizon)
 
-    if st.session_state.results:
-        res = st.session_state.results
-        s = res['stats']
-        
-        # High-Fidelity Stats
-        m1, m2, m3, m4 = st.columns(4)
-        if s is not None:
-            m1.metric("ALGO RETURN", f"{s['Return [%]']:.2f}%", f"{s['Return [%]']-s['Buy & Hold Return [%]']:.1f}% ALPHA")
-            m2.metric("SHARPE RATIO", f"{s['Sharpe Ratio']:.2f}")
-            m3.metric("WIN PROBABILITY", f"{s['Win Rate [%]']:.1f}%")
-            m4.metric("MAX DRAWDOWN", f"{s['Max. Drawdown [%]']:.1f}%")
-
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        tab1, tab2, tab3 = st.tabs(["📉 TERMINAL", "📰 INTELLIGENCE", "🧬 REPORT"])
-        
-        with tab1:
-            cl, cr = st.columns([3, 1])
-            with cl:
-                st.markdown("#### <i class='fas fa-chart-line'></i> PRICE & SENTIMENT SYNERGY", unsafe_allow_html=True)
-                df = res['merged']
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(x=df.index, y=df['Close'], name='Price', fill='tozeroy', line=dict(color='#00ff41', width=2), fillcolor='rgba(0, 255, 65, 0.05)'))
-                colors = ['#00ff41' if v > 0 else '#ff3131' if v < 0 else '#444444' for v in df['avg_sentiment']]
-                fig.add_trace(go.Bar(x=df.index, y=df['avg_sentiment'], name='Sentiment', yaxis='y2', marker_color=colors, opacity=0.4))
-                fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
-                                 yaxis=dict(title="USD", gridcolor='rgba(255,255,255,0.02)'),
-                                 yaxis2=dict(title="SENTIMENT", overlaying='y', side='right', range=[-1, 1], showgrid=False),
-                                 height=600, margin=dict(l=0, r=0, t=20, b=0), hovermode="x unified")
-                st.plotly_chart(fig, use_container_width=True)
+        if st.session_state.results:
+            res = st.session_state.results
+            s = res['stats']
             
-            with cr:
-                st.markdown("#### <i class='fas fa-compass'></i> MOOD GAUGE", unsafe_allow_html=True)
-                avg = res['sentiment']['avg_sentiment'].mean()
-                fig_g = go.Figure(go.Indicator(
-                    mode="gauge+number", value=avg,
-                    gauge={'axis': {'range': [-1, 1], 'tickcolor': "#444444"}, 'bar': {'color': "#00ff41"}, 'bgcolor': "rgba(0,0,0,0)", 'bordercolor': "#1a1a1a"}
-                ))
-                fig_g.update_layout(paper_bgcolor='rgba(0,0,0,0)', font={'color': "#ffffff", 'family': 'Space Grotesk'}, height=300, margin=dict(l=20, r=20, t=20, b=20))
-                st.plotly_chart(fig_g, use_container_width=True)
-                st.markdown(f"<div style='text-align:center; font-family:\"JetBrains Mono\", monospace; font-weight:700; font-size:1rem; color:{'#00ff41' if avg > 0.1 else '#ff3131' if avg < -0.1 else '#888888'}; border: 1px solid currentColor; padding: 10px;'>STATUS: {'BULLISH' if avg > 0.1 else 'BEARISH' if avg < -0.1 else 'NEUTRAL'}</div>", unsafe_allow_html=True)
+            # High-Fidelity Stats
+            m1, m2, m3, m4 = st.columns(4)
+            if s is not None:
+                m1.metric("ALGO RETURN", f"{s['Return [%]']:.2f}%", f"{s['Return [%]']-s['Buy & Hold Return [%]']:.1f}% ALPHA")
+                m2.metric("SHARPE RATIO", f"{s['Sharpe Ratio']:.2f}")
+                m3.metric("WIN PROBABILITY", f"{s['Win Rate [%]']:.1f}%")
+                m4.metric("MAX DRAWDOWN", f"{s['Max. Drawdown [%]']:.1f}%")
 
-        with tab2:
-            st.markdown("#### <i class='fas fa-list'></i> INGESTED DATA STREAM", unsafe_allow_html=True)
-            for _, row in res['news'].head(20).iterrows():
-                color = "#00ff41" if row['label'] == 'positive' else "#ff3131" if row['label'] == 'negative' else "#888888"
-                st.markdown(f"""
-                <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 1rem; margin-bottom: 0.5rem; border-left: 2px solid {color};">
-                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-secondary);">{row['date']} // {row['source']}</div>
-                    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1rem; margin: 0.5rem 0;">{row['headline']}</div>
-                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: {color};">LABEL: {row['label'].upper()} // CONFIDENCE: {row['score']:.4f}</div>
-                </div>
-                """, unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
 
-        with tab3:
-            if res['plot_path'] and pd.io.common.file_exists(res['plot_path']):
-                st.markdown("#### <i class='fas fa-chart-bar'></i> VISUAL PERFORMANCE AUDIT", unsafe_allow_html=True)
-                with open(res['plot_path'], 'r', encoding='utf-8') as f:
-                    html_data = f.read()
-                st.components.v1.html(html_data, height=800, scrolling=True)
+            tab1, tab2, tab3 = st.tabs(["📉 TERMINAL", "📰 INTELLIGENCE", "🧬 REPORT"])
             
-            st.markdown("#### <i class='fas fa-database'></i> TRANSACTIONAL DATASET", unsafe_allow_html=True)
-            # Use technical styling for the dataframe
-            st.dataframe(res['merged'].style.background_gradient(subset=['avg_sentiment'], cmap='RdYlGn'), use_container_width=True)
-    else:
-        st.markdown("<br><br>", unsafe_allow_html=True)
-        st.info("⚡ **SYSTEM STANDBY**: Initialize analysis via the control unit.")
+            with tab1:
+                cl, cr = st.columns([3, 1])
+                with cl:
+                    st.markdown("#### <i class='fas fa-chart-line'></i> PRICE & SENTIMENT SYNERGY", unsafe_allow_html=True)
+                    df = res['merged']
+                    fig = go.Figure()
+                    fig.add_trace(go.Scatter(x=df.index, y=df['Close'], name='Price', fill='tozeroy', line=dict(color='#00ff41', width=2), fillcolor='rgba(0, 255, 65, 0.05)'))
+                    colors = ['#00ff41' if v > 0 else '#ff3131' if v < 0 else '#444444' for v in df['avg_sentiment']]
+                    fig.add_trace(go.Bar(x=df.index, y=df['avg_sentiment'], name='Sentiment', yaxis='y2', marker_color=colors, opacity=0.4))
+                    fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
+                                     yaxis=dict(title="USD", gridcolor='rgba(255,255,255,0.02)'),
+                                     yaxis2=dict(title="SENTIMENT", overlaying='y', side='right', range=[-1, 1], showgrid=False),
+                                     height=600, margin=dict(l=0, r=0, t=20, b=0), hovermode="x unified")
+                    st.plotly_chart(fig, use_container_width=True)
+                
+                with cr:
+                    st.markdown("#### <i class='fas fa-compass'></i> MOOD GAUGE", unsafe_allow_html=True)
+                    avg = res['sentiment']['avg_sentiment'].mean()
+                    fig_g = go.Figure(go.Indicator(
+                        mode="gauge+number", value=avg,
+                        gauge={'axis': {'range': [-1, 1], 'tickcolor': "#444444"}, 'bar': {'color': "#00ff41"}, 'bgcolor': "rgba(0,0,0,0)", 'bordercolor': "#1a1a1a"}
+                    ))
+                    fig_g.update_layout(paper_bgcolor='rgba(0,0,0,0)', font={'color': "#ffffff", 'family': 'Space Grotesk'}, height=300, margin=dict(l=20, r=20, t=20, b=20))
+                    st.plotly_chart(fig_g, use_container_width=True)
+                    st.markdown(f"<div style='text-align:center; font-family:\"JetBrains Mono\", monospace; font-weight:700; font-size:1rem; color:{'#00ff41' if avg > 0.1 else '#ff3131' if avg < -0.1 else '#888888'}; border: 1px solid currentColor; padding: 10px;'>STATUS: {'BULLISH' if avg > 0.1 else 'BEARISH' if avg < -0.1 else 'NEUTRAL'}</div>", unsafe_allow_html=True)
+
+            with tab2:
+                st.markdown("#### <i class='fas fa-list'></i> INGESTED DATA STREAM", unsafe_allow_html=True)
+                for _, row in res['news'].head(20).iterrows():
+                    color = "#00ff41" if row['label'] == 'positive' else "#ff3131" if row['label'] == 'negative' else "#888888"
+                    st.markdown(f"""
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 1rem; margin-bottom: 0.5rem; border-left: 2px solid {color};">
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-secondary);">{row['date']} // {row['source']}</div>
+                        <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1rem; margin: 0.5rem 0;">{row['headline']}</div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: {color};">LABEL: {row['label'].upper()} // CONFIDENCE: {row['score']:.4f}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            with tab3:
+                if res['plot_path'] and pd.io.common.file_exists(res['plot_path']):
+                    st.markdown("#### <i class='fas fa-chart-bar'></i> VISUAL PERFORMANCE AUDIT", unsafe_allow_html=True)
+                    with open(res['plot_path'], 'r', encoding='utf-8') as f:
+                        html_data = f.read()
+                    st.components.v1.html(html_data, height=800, scrolling=True)
+                
+                st.markdown("#### <i class='fas fa-database'></i> TRANSACTIONAL DATASET", unsafe_allow_html=True)
+                # Use technical styling for the dataframe
+                st.dataframe(res['merged'].style.background_gradient(subset=['avg_sentiment'], cmap='RdYlGn'), use_container_width=True)
+        else:
+            st.markdown("<br><br>", unsafe_allow_html=True)
+            st.info("⚡ **SYSTEM STANDBY**: Initialize analysis via the control unit.")
