@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: sentira-pro-terminal
+    env: docker
+    plan: starter # Starter (2GB RAM) is recommended for FinBERT/PyTorch
+    region: oregon # Or your preferred region
+    envVars:
+      - key: NEWS_API_KEY
+        sync: false # You will manually fill this in the Render UI for security
+      - key: DEFAULT_TICKERS
+        value: AAPL,MSFT,NVDA,TSLA,BTC-USD
+      - key: LOOKBACK_DAYS
+        value: "30"
+      - key: BUY_THRESHOLD
+        value: "0.1"
+      - key: SELL_THRESHOLD
+        value: "-0.1"
+    healthCheckPath: /_stcore/health # Streamlit's internal health check
+    autoDeploy: true
