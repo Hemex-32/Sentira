@@ -2,7 +2,7 @@ services:
   - type: web
     name: sentira-pro-terminal
     env: docker
-    plan: starter # Starter (2GB RAM) is recommended for FinBERT/PyTorch
+    plan: free # Note: FinBERT might crash on 512MB RAM. If so, upgrade to starter.
     region: oregon # Or your preferred region
     envVars:
       - key: NEWS_API_KEY
